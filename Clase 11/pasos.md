@@ -90,6 +90,37 @@ python "Clase 11/starter/check.py"
 3/9 en verde (4/9 si n8n responde).
 ```
 
+## 6. Re-arranque: retomar otro día (sin reimportar nada)
+
+El `Stop` o la suspensión a los 30 min **no borra nada** del mismo Codespace:
+workflows y credenciales viven en el volumen `n8n_data`. Solo el `Delete` del
+Codespace obliga a reimportar. Rutina de vuelta (~2 min):
+
+```bash
+# 1. Entra al MISMO codespace en github.com/codespaces (Start), no crees otro:
+#    la URL https://...app.github.dev se conserva solo en ese Codespace.
+git pull
+cd /workspaces/ProcesamientoLenguajeNatural/.devcontainer
+docker compose up -d n8n
+docker compose ps
+```
+
+✅ Esperado: n8n `Up`. Abre n8n por la URL de `PORTS`: tus 2 workflows siguen
+ahí en `Publish`. (Si borraste el Codespace y creaste otro: reimporta los 2
+`.json` del punto 3 y recrea las credenciales OpenRouter/Google.)
+
+```bash
+# 2. Verificacion rapida (30 s), desde la raiz del repo:
+cd /workspaces/ProcesamientoLenguajeNatural
+python "Clase 10/Peticion.py" --url http://localhost:5678/webhook/agente-logistica-unal --mensaje "¿Hay osciloscopios?" --session-id retome01
+python "Clase 11/starter/check.py"
+streamlit run "Clase 11/starter/app.py"   # UI en :8501, sigue donde quedaste
+```
+
+✅ Esperado: `Status: 200`, el check da tu último conteo o más, y el
+Streamlit abre en el puerto `8501` de `PORTS`. Si `pip` se queja, repite el
+`pip install -r "Clase 11/starter/requirements.txt"` (es idempotente).
+
 ## Checkpoint del paso 1 (avísame esto para agregar aquí el paso 2)
 1. `docker compose ps` → n8n `Up`.
 2. `Status: 200` del punto 4 (pega las 2 primeras líneas).
