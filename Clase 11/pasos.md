@@ -61,7 +61,7 @@ logs `Editor is ready` / `n8n ready on ::, port 5678`.
 
 ```bash
 cd /workspaces/ProcesamientoLenguajeNatural
-python "Clase 10/Peticion.py" --url http://localhost:5678/webhook/agente-logistica-unal --mensaje "¿Hay osciloscopios?" --session-id paso01
+python "Clase 11/Peticion.py" --url http://localhost:5678/webhook/agente-logistica-unal --mensaje "¿Hay osciloscopios?" --session-id paso01
 ```
 
 - ✅ `Status: 200` + respuesta del agente → sigue al punto 5.
