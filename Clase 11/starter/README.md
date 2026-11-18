@@ -8,7 +8,8 @@ existe pero **mirarla es perder el ejercicio**: la nota esta en tu demo en vivo.
 ```bash
 cd /workspaces/ProcesamientoLenguajeNatural/.devcontainer
 docker compose up -d                                    # n8n en :5678
-# en n8n: importar Clase 11/n8n-workflow-ingesta-pdf.json -> Publish
+# en n8n: importar Clase 11/Clase11 - Agente Logistica UNAL.json -> Publish
+# (2 ramas) y desactivar el workflow de la Clase 10 (mismo path de chat)
 # en n8n: verificar Clase10 - Agente Logistica UNAL en Publish
 pip install -r "Clase 11/starter/requirements.txt"
 python "Clase 11/starter/check.py"                      # juez: debe subir 0/9 -> 9/9

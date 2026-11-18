@@ -134,7 +134,8 @@ POST /webhook/ingesta-reporte-pdf
 \begin{frame}[fragile]{Demo en vivo (10 min)}
 \begin{lstlisting}[language=bash]
 cd .devcontainer && docker compose up -d
-# importar Clase 11/n8n-workflow-ingesta-pdf.json -> Publish
+# importar Clase 11/Clase11 - Agente Logistica UNAL.json -> Publish
+# (desactiva el workflow de la Clase 10: comparten path de chat)
 pip install -r "Clase 11/app/requirements.txt"
 streamlit run "Clase 11/app/app.py"   # :8501
 \end{lstlisting}

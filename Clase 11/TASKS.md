@@ -5,7 +5,9 @@
 > `python "Clase 11/starter/check.py"` es el juez: arranca en 3/9 y debe llegar a 9/9.
 
 - [ ] **T0 Fork + starter.** Fork propio, Codespace propio, `docker compose up -d`,
-      importar `n8n-workflow-ingesta-pdf.json` + workflow de la Clase 10, `Publish`
+      importar `Clase11 - Agente Logistica UNAL.json` (las 2 ramas), `Publish`,
+      y desactivar el workflow de la Clase 10 (mismo path de chat: si quedan
+      los dos activos, el webhook dispara doble).
       en ambos. `pip install -r "Clase 11/starter/requirements.txt"`.
 - [ ] **T1 Contrato vivo.** Verificar `docker compose ps` (n8n Up), workflow A en
       `Publish`, `POST localhost:5678/webhook/agente-logistica-unal` con
@@ -25,8 +27,8 @@
       render de `summary`. Probar con `poema_test.pdf` y `reporte_planta.pdf`.
 - [ ] **T6 Generar reporte.** Botón que arma PDF con `fpdf2` (sesión, fecha, intercambios,
       último resumen) y `download_button`. Evidencia: PDF descargado con ≥1 intercambio.
-- [ ] **T7 Workflow B.** Importar `n8n-workflow-ingesta-pdf.json`, `Publish`, probar con
-      `curl` JSON `{"sessionId","filename","text"}` → `{"ok":true,"summary":...}`.
+- [ ] **T7 Rama de ingesta.** Probar la rama B del mismo workflow (ya importado
+      en T0) con `curl` JSON `{"sessionId","filename","text"}` → `{"ok":true,"summary":...}`.
 - [ ] **T8 QA + demo.** `check.py` 9/9, `grep` de secretos vacío, T2–T6 contra
       n8n real, demo en vivo (chat con memoria, escritura con/sin check, ingesta,
       reporte). Evidencia: checklist SPEC §4 en verde.

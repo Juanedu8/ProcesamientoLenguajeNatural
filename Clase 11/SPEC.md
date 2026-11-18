@@ -25,7 +25,7 @@ túnel Ngrok (era de la versión anterior con Colab; en Codespaces se usa
 
 ## 3. Contratos API
 
-### 3.1 Workflow A — chat (existe, Clase 10)
+### 3.1 Rama A — chat (evolución del agente de la Clase 10, mismo `path`)
 - `POST {N8N_CHAT_URL}` `Content-Type: application/json`
 - Request: `{"sessionId": "demo-01", "chatInput": "¿Hay osciloscopios?"}`
 - Response 200: `[{"output": "..."}]` (aceptar también `{"output": "..."}`)
@@ -34,7 +34,7 @@ túnel Ngrok (era de la versión anterior con Colab; en Codespaces se usa
   `Private` desde dentro del Codespace → usar `http://localhost:5678/...` o poner
   el puerto en `Public`.
 
-### 3.2 Workflow B — ingesta de reporte (nuevo, `n8n-workflow-ingesta-pdf.json`)
+### 3.2 Rama B — ingesta de reporte (mismo workflow, `Clase11 - Agente Logistica UNAL.json`)
 - `POST {N8N_INGEST_URL}` `Content-Type: application/json`
 - Request: `{"sessionId": "demo-01", "filename": "reporte.pdf", "text": "<texto 1..20000 chars>"}`
 - Response 200: `{"ok": true, "filename": "...", "summary": "...", "chars": 1234}`

@@ -44,15 +44,16 @@ logs `Editor is ready` / `n8n ready on ::, port 5678`.
    - `Failed` → `Restart`; si no revive, `Delete` + `Create codespace on main`.
 2. No pierdes nada: todo está en git. Solo reimportarías los workflows (punto 3).
 
-## 3. Importa los DOS workflows y publícalos
+## 3. Importa el workflow único (2 ramas) y publícalo
 
 1. Abre n8n por la URL `https` de la pestaña `PORTS` (puerto 5678),
    **nunca** por `http://localhost:5678` en el navegador.
-2. `Workflows → … → Import from file`, uno por uno:
-   - `Clase 10/Clase10 - Agente Logistica UNAL.json`
-   - `Clase 11/n8n-workflow-ingesta-pdf.json`
-3. En cada uno pulsa **`Publish`** arriba a la derecha (eso es el `Active`).
-4. Copia sus Production URLs del nodo Webhook:
+2. `Workflows → … → Import from file`:
+   - `Clase 11/Clase11 - Agente Logistica UNAL.json` (rama chat + rama ingesta)
+3. Pulsa **`Publish`** arriba a la derecha (eso es el `Active`) y **desactiva
+   el workflow de la Clase 10** si lo tienes: comparten el `path`
+   `agente-logistica-unal` y dos activos = doble disparo.
+4. Copia sus Production URLs de los nodos Webhook:
    - `.../webhook/agente-logistica-unal`
    - `.../webhook/ingesta-reporte-pdf`
 

@@ -32,9 +32,11 @@ y evita CORS + auth del proxy `*.app.github.dev` (causa del `401` y del
 - `app/app.py`: 4 secciones (Chat / Inventario y clima / Subir PDF / Reporte).
   Estado en `st.session_state` (`messages`, `session_id`). Timeout 120 s a n8n.
 - `app/requirements.txt`: `streamlit, requests, pypdf, fpdf2`.
-- `n8n-workflow-ingesta-pdf.json`: `Webhook (POST ingesta-reporte-pdf,
-  respond lastNode) → Code (resume: filename + chars + preview 500)`.
-  Respuesta del último nodo = HTTP response. Importar y `Publish`.
+- El workflow único `Clase11 - Agente Logistica UNAL.json` trae las dos ramas:
+  `Webhook (POST ingesta-reporte-pdf, respond lastNode) → Code (resume:
+  filename + chars + preview 500)`. Respuesta del último nodo = HTTP response.
+  Importar, `Publish` y **desactivar el workflow de la Clase 10** (mismo `path`
+  de chat: dos activos = doble disparo).
 - Escritura en A (manual en n8n, 5 min): duplicar el `Google Sheets Tool`,
   `Operation: Append`, renombrar `Inventario_Write`, pegar el `toolDescription`
   de abajo, `Disable` nada (conviven Read + Write).
