@@ -1,0 +1,157 @@
+% Clase 11 - Interfaz Agentica con Spec-Driven Development (Codespaces)
+% Prof. Lucas Miguel Iturriago Salas - UNAL Manizales 2026
+\documentclass[aspectratio=169,11pt]{beamer}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{lmodern}
+\usepackage[spanish,es-noshorthands]{babel}
+\usepackage{amsmath,amssymb}
+\usepackage{listings}
+\usepackage{hyperref}
+\usepackage{xcolor}
+
+\usetheme{Madrid}
+\usecolortheme{whale}
+\definecolor{unalblue}{RGB}{0,82,204}
+\setbeamercolor{structure}{fg=unalblue}
+\setbeamercolor{title}{bg=unalblue,fg=white}
+\setbeamercolor{frametitle}{bg=unalblue!10,fg=unalblue!80!black}
+
+\lstset{
+  basicstyle=\ttfamily\scriptsize,
+  breaklines=true,
+  frame=single,
+  backgroundcolor=\color{gray!8},
+  keywordstyle=\color{unalblue}\bfseries,
+  commentstyle=\color{gray},
+  showstringspaces=false,
+  upquote=true,
+}
+
+\title{Interfaz Agéntica con Spec-Driven Development}
+\subtitle{Del webhook de n8n al thin-client Streamlit en Codespaces}
+\author{Prof. Lucas Miguel Iturriago Salas}
+\institute[UNAL]{Universidad Nacional de Colombia \\ Dept. Ing. Eléctrica, Electrónica y Computación \\ Primer Semestre -- 2026}
+\date{}
+
+\begin{document}
+
+\begin{frame}
+  \titlepage
+\end{frame}
+
+\begin{frame}{Estructura de la Sesión}
+  \begin{enumerate}
+    \item Recap Clase 10: el contrato del agente (qué ya funciona)
+    \item El problema de la interfaz: \texttt{Peticion.py} no la usa nadie
+    \item Spec-Driven Development: SPEC manda, código obedece
+    \item Orquestador, subagentes y skills (\texttt{AGENTS.md})
+    \item Despliegue MLOps: Streamlit + Workflow A R/W + Workflow B ingesta
+  \end{enumerate}
+\end{frame}
+
+\begin{frame}[fragile]{Recap: lo que la Clase 10 nos dejó}
+  Un agente logístico publicado en n8n con contrato HTTP estable:
+\begin{lstlisting}
+POST /webhook/agente-logistica-unal
+{"sessionId": "demo-01", "chatInput": "Hay osciloscopios?"}
+-> [{"output": "..."}]
+\end{lstlisting}
+  \begin{itemize}
+    \item \textbf{ReAct + grounding:} Google Sheets (lectura) + Open-Meteo + memoria por \texttt{sessionId}.
+    \item \textbf{Modelo verificado:} \texttt{nvidia/nemotron-3.5-super-vl:free}, $T=0$.
+    \item Regla de oro: si el workflow está en \texttt{Publish}, el contrato no se rompe.
+  \end{itemize}
+\end{frame}
+
+\begin{frame}{El problema: un webhook no es un producto}
+  \begin{itemize}
+    \item \texttt{Peticion.py} sirve para probar, no para operar: sin historial, sin confirmaciones, sin reportes.
+    \item Opción A: chat JS en GitHub Pages $\to$ pega directo al proxy \texttt{*.app.github.dev}: CORS, puerto en \texttt{Private} $\to$ \texttt{401}, URL efímera por Codespace. Frágil.
+    \item Opción B: \textbf{Streamlit dentro del mismo Codespace} $\to$ llama por \texttt{http://localhost:5678} con \texttt{requests} server-side: cero CORS, cero auth del proxy.
+    \item Decisión de la clase: \textbf{Streamlit como producto, Pages como vitrina}.
+  \end{itemize}
+\end{frame}
+
+\begin{frame}[fragile]{Spec-Driven Development}
+  Invertimos el orden clásico: primero se escribe \textbf{qué}, el código viene después.
+  \begin{enumerate}
+    \item \texttt{SPEC.md}: historias de usuario y criterios de aceptación (chat+memoria, grounding visible, escritura con confirmación, subir/generar PDF).
+    \item \texttt{PLAN.md}: arquitectura y decisiones (Streamlit $>$ Pages, híbrido A R/W + B ingesta, PDFs en el cliente).
+    \item \texttt{TASKS.md}: T1--T8, una tarea = un cambio + evidencia (comando + output).
+  \end{enumerate}
+  Si el código contradice al SPEC, se cambia el código. El SPEC es el test.
+\end{frame}
+
+\begin{frame}{Orquestador, subagentes y skills}
+  \begin{itemize}
+    \item \textbf{Orquestador:} descompone y delega, no implementa todo de golpe.
+    \item \textbf{Subagentes:} \texttt{explore} (lee la 10 y verifica el contrato vivo), \texttt{frontend} (implementa \texttt{app.py}), \texttt{qa} (prueba contra n8n real).
+    \item \textbf{Skills} (\texttt{Clase 11/skills/*/SKILL.md}): contexto reutilizable --- \texttt{n8n-webhook-client}, \texttt{streamlit-chat-ui}, \texttt{pdf-report}. Se citan, no se duplican.
+    \item \texttt{AGENTS.md}: instrucciones del repo que todo agente lee (cómo correr, no subir keys, definición de hecho).
+  \end{itemize}
+\end{frame}
+
+\begin{frame}{Workflow A: de solo-lectura a lectura/escritura}
+  Sin crear otro workflow: se agrega un segundo \texttt{ai\_tool} al mismo \texttt{AI Agent}:
+  \begin{itemize}
+    \item \texttt{Inventario\_Read} (\texttt{Get Row(s)}) + \texttt{Inventario\_Write} (\texttt{Append/Update}) conviven; el agente rutea por intención.
+    \item \texttt{toolDescription} restrictivo: exige ID exacto, pide confirmación explícita, nunca borra sin ID.
+    \item \textbf{Doble guardarraíl:} checkbox en Streamlit + descripción del tool. Sin check, no hay POST.
+  \end{itemize}
+  Misma \texttt{sessionId}, misma memoria, misma URL de chat.
+\end{frame}
+
+\begin{frame}[fragile]{Workflow B: ingesta de PDFs (\texttt{ingesta-reporte-pdf})}
+  El webhook de chat espera JSON; un PDF binario lo rompería. Nuevo workflow separado:
+\begin{lstlisting}
+POST /webhook/ingesta-reporte-pdf
+{"sessionId":"demo-01","filename":"r.pdf","text":"<0-20000 chars>"}
+-> {"ok":true,"filename":"r.pdf","summary":"...","chars":1234}
+\end{lstlisting}
+  \begin{itemize}
+    \item Decisión clave: el parseo lo hace Streamlit con \texttt{pypdf}; n8n solo resume y persiste. Sin nodos binarios en clase.
+    \item Nodos: \texttt{Webhook PDF} (\texttt{lastNode}) $\to$ \texttt{Code} (\texttt{runOnceForAllItems}). Importar y \texttt{Publish}.
+  \end{itemize}
+\end{frame}
+
+\begin{frame}{PDFs: el cliente es delgado pero trabaja}
+  \begin{itemize}
+    \item \textbf{Subir:} \texttt{file\_uploader} $\le$10 MB $\to$ \texttt{pypdf} extrae texto $\to$ preview 1000 chars $\to$ POST al Workflow B $\to$ render del \texttt{summary}. PDF escaneado sin texto $\to$ error legible.
+    \item \textbf{Generar:} botón arma reporte con \texttt{fpdf2} (sesión, fecha, intercambios, último resumen) y lo entrega por \texttt{download\_button}.
+    \item Principio thin-client: serializar y presentar en \texttt{app/}; razonar y persistir en n8n.
+  \end{itemize}
+\end{frame}
+
+\begin{frame}{Memoria y observabilidad (MLOps)}
+  \begin{itemize}
+    \item \texttt{sessionId} estable en el sidebar = conversación continua (Window Buffer $k=10$); cambiarlo = charla nueva. Todo queda en \texttt{st.session\_state.messages}.
+    \item Pestaña \texttt{Executions} en n8n: se ve el ReAct (Thought $\to$ Action $\to$ Observation), tokens y latencia de cada tool, incluido el \texttt{Write}.
+    \item Troubleshooting de la 10 sigue vigente: \texttt{404} = no publicado, \texttt{401} = puerto \texttt{Private} con URL https, \texttt{Connection lost} = abrir siempre por la URL de \texttt{PORTS}.
+  \end{itemize}
+\end{frame}
+
+\begin{frame}[fragile]{Demo en vivo (10 min)}
+\begin{lstlisting}[language=bash]
+cd .devcontainer && docker compose up -d
+# importar Clase 11/n8n-workflow-ingesta-pdf.json -> Publish
+pip install -r "Clase 11/app/requirements.txt"
+streamlit run "Clase 11/app/app.py"   # :8501
+\end{lstlisting}
+  \begin{enumerate}
+    \item Chat con mismo \texttt{sessionId}: evidencia de memoria.
+    \item Botones de grounding: osciloscopios + clima.
+    \item Escritura con y sin check (mostrar que sin check no hay POST).
+    \item Subir \texttt{reporte\_planta.pdf} $\to$ summary; generar y descargar reporte.
+  \end{enumerate}
+\end{frame}
+
+\begin{frame}{Cierre}
+  \begin{itemize}
+    \item SDD: SPEC $\to$ PLAN $\to$ TASKS $\to$ código con evidencia por tarea.
+    \item Patrón final: \textbf{Streamlit thin-client + n8n A (chat R/W) + n8n B (ingesta)}.
+    \item Tarea: cada estudiante levanta su Codespace (fork propio), importa ambos workflows y demuestra el ciclo consulta $\to$ escritura $\to$ reporte.
+  \end{itemize}
+\end{frame}
+
+\end{document}
