@@ -91,38 +91,63 @@ python "Clase 11/starter/check.py"
 3/9 en verde (4/9 si n8n responde).
 ```
 
-## 6. Re-arranque: retomar otro día (sin reimportar nada)
-
-El `Stop` o la suspensión a los 30 min **no borra nada** del mismo Codespace:
-workflows y credenciales viven en el volumen `n8n_data`. Solo el `Delete` del
-Codespace obliga a reimportar. Rutina de vuelta (~2 min):
-
-```bash
-# 1. Entra al MISMO codespace en github.com/codespaces (Start), no crees otro:
-#    la URL https://...app.github.dev se conserva solo en ese Codespace.
-git pull
-cd /workspaces/ProcesamientoLenguajeNatural/.devcontainer
-docker compose up -d n8n
-docker compose ps
-```
-
-✅ Esperado: n8n `Up`. Abre n8n por la URL de `PORTS`: tus 2 workflows siguen
-ahí en `Publish`. (Si borraste el Codespace y creaste otro: reimporta los 2
-`.json` del punto 3 y recrea las credenciales OpenRouter/Google.)
-
-```bash
-# 2. Verificacion rapida (30 s), desde la raiz del repo:
-cd /workspaces/ProcesamientoLenguajeNatural
-python "Clase 10/Peticion.py" --url http://localhost:5678/webhook/agente-logistica-unal --mensaje "¿Hay osciloscopios?" --session-id retome01
-python "Clase 11/starter/check.py"
-streamlit run "Clase 11/starter/app.py"   # UI en :8501, sigue donde quedaste
-```
-
-✅ Esperado: `Status: 200`, el check da tu último conteo o más, y el
-Streamlit abre en el puerto `8501` de `PORTS`. Si `pip` se queja, repite el
-`pip install -r "Clase 11/starter/requirements.txt"` (es idempotente).
-
-## Checkpoint del paso 1 (avísame esto para agregar aquí el paso 2)
+## Checkpoint del paso 1 (listo si tienes esto)
 1. `docker compose ps` → n8n `Up`.
-2. `Status: 200` del punto 4 (pega las 2 primeras líneas).
-3. Conteo del check (`3/9`, `4/9`...).
+2. `Status: 200` del punto 4.
+3. `check.py` en 3/9 (4/9 si n8n respondió al contrato vivo).
+
+## Paso 2 — T2: chat + memoria (primer código del starter)
+
+> Meta: `check.py` enciende `cliente chat` + `chat UI` (5/9) y el Streamlit
+> conversa con memoria real. Trabaja SOLO en `Clase 11/starter/app.py`.
+> La referencia (`solucion-referencia/`) no se mira.
+
+### 1. `parse_output(data)` — el contrato de la 10 en una función
+```python
+def parse_output(data):
+    if isinstance(data, list) and data and isinstance(data[0], dict) and "output" in data[0]:
+        return str(data[0]["output"])
+    if isinstance(data, dict) and "output" in data:
+        return str(data["output"])
+    return None  # el llamador muestra el JSON crudo
+```
+
+### 2. `post_chat(url, sid, msg)` — skill `n8n-webhook-client`
+```python
+r = requests.post(url, json={"sessionId": sid, "chatInput": msg}, timeout=120)
+```
+- `404` → `raise RuntimeError("404: workflow no publicado o path mal (usa /webhook/, no /webhook-test/).")`
+- `401` → `raise RuntimeError("401: puerto 5678 en Private con URL https. Usa http://localhost:5678/... o pon el puerto en Public.")`
+- `r.raise_for_status()`, luego `r.json()` en `try/except ValueError` (si no es JSON, devuelve `r.text`).
+- Retorna `parse_output(data)` si no es `None`, si no el texto crudo.
+
+### 3. `send_and_render(prompt)` — el ciclo completo
+1. `st.session_state.messages.append({"role": "user", "content": prompt})`
+2. `with st.chat_message("user"): st.markdown(prompt)`
+3. `with st.chat_message("assistant"), st.spinner("Consultando al agente..."):`
+   `try: answer = post_chat(...)` / `except Exception as e: answer = f"Error: {e}"`
+4. Append del assistant + `st.markdown(answer)`. Retorna `answer` (lo reusa el T4).
+
+### 4. Pestaña Chat — historial + entrada
+```python
+with tab_chat:
+    for m in st.session_state.messages:
+        with st.chat_message(m["role"]):
+            st.markdown(m["content"])
+    if prompt := st.chat_input("Pregunta al agente (ej. ¿Hay osciloscopios?)"):
+        send_and_render(prompt)
+```
+
+### 5. Verifica (juez + vivo)
+```bash
+python "Clase 11/starter/check.py"   # cliente chat + chat UI en PASS -> 5/9
+streamlit run "Clase 11/starter/app.py"
+```
+En la UI (`:8501` en `PORTS`):
+1. Pregunta "¿Hay osciloscopios?" con `session_id demo-01` → responde el agente.
+2. Pregunta "¿y dónde están?" **mismo session** → usa contexto (memoria OK).
+3. Cambia a `demo-02`, repite → empieza de cero (memoria aislada OK).
+
+## Checkpoint del paso 2 (avísame esto para agregar aquí el paso 3)
+1. `check.py` en 5/9 (pega el conteo).
+2. Las 3 pruebas de memoria de la UI (qué respondió a "¿y dónde están?" con `demo-01`).
