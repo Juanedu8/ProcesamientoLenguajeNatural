@@ -189,7 +189,7 @@ Reglas de lanzamiento que aprendimos a golpes:
   local, es normal: `localhost:5678` no existe en tu Windows.
 - `frontend` solo puede tocar `starter/app.py`. Vigila con:
 ```bash
-git status --short; git diff --stat
+git status --short; git diff --stat   # siempre git: gh no ve tu working tree
 ```
 - ❌ Si ves cambios fuera de `starter/` (referencia, workflows, Pagina): detén y redirige con la regla 1 de `AGENTS.md`: *"SPEC manda: solo T2 en starter/app.py, revierte el resto"*.
 - ❌ Si propone credenciales quemadas o URLs distintas a las del SPEC: detén y redirige con la regla 2: *"nada de secretos en el repo, URLs solo de variables + sidebar"*.
