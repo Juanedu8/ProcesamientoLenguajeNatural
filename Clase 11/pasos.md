@@ -15,13 +15,34 @@ DÓNDE se hace cada cosa (etiqueta al inicio de cada sección):
 > Meta del paso: n8n `Up`, 2 workflows en `Publish`, contrato verificado con
 > `Status: 200` y `check.py` en **3/9 en verde**. Sin esto, nada de T2.
 
-## 1. Fork y Codespace [navegador: github.com]
+## 0. Autentícate en local con gh (una sola vez) [opencode-local]
 
-1. En GitHub: `Fork` del repo (si no lo tienes) → en TU fork
-   `Code > Codespaces > Create codespace on main`.
-2. Reparte el trabajo: **n8n, Streamlit y docker viven en el Codespace**;
-   **OpenCode, el código y los commits viven en tu Windows (opencode-local)**.
-   Git es el puente entre los dos (ver sección Puente).
+Todo lo del repo en tu Windows pasa por `gh`. Si no lo tienes:
+`winget install GitHub.cli`. Luego:
+```powershell
+gh auth login
+gh auth status
+```
+Elige `GitHub.com` → `HTTPS` → `Login with a web browser` y pega el código en
+el navegador.
+
+✅ Esperado: `Logged in to github.com account TU-USUARIO`. Desde aquí `git push`
+y `git pull` ya no piden clave (gh dejó el credential helper listo).
+
+Ojo honesto: `gh` no tiene `add/commit/push/pull/status/log`; eso sigue siendo
+`git`, solo que autenticado por `gh`. Lo que sí hace `gh`: login, fork,
+codespaces y ver estado. Abajo cada comando dice dónde corre.
+
+## 1. Fork y Codespace con gh [opencode-local]
+
+```powershell
+gh repo fork UN-GCPDS/ProcesamientoLenguajeNatural --clone=false
+gh codespace create -r TU-USUARIO/ProcesamientoLenguajeNatural -b main
+gh codespace list
+```
+Reparte el trabajo: **n8n, Streamlit y docker viven en el Codespace**;
+**OpenCode, el código y los commits viven en tu Windows (opencode-local)**.
+Git es el puente entre los dos (ver sección Puente).
 
 ## 2. Actualiza y levanta SOLO el n8n [terminal-Codespace]
 
@@ -113,8 +134,9 @@ python "Clase 11/starter/check.py"
 - Orden de cada "verifica y commitea": (1) en local, `check.py` estático +
   `git diff` limpio salvo `starter/`; (2) commit + push en local;
   (3) `git pull` en Codespace + prueba viva.
-- Si algo falla en vivo pero en local estaba verde: 99% es n8n (no publicado,
-  puerto, URL), no el código — vuelve al paso 1, punto 4.
+- En local, `gh` autentica una sola vez (`gh auth login`); los
+  `add/commit/push/pull/status/log` siguen siendo `git` (gh no los tiene,
+  solo les pone la credencial). Míralo con `gh auth status` si algo falla.
 - `localhost:5678` SOLO existe dentro del Codespace. Desde opencode-local
   ningún `curl`/`Peticion.py`/`check.py --vivo` llega a n8n (verás SKIP o
   connection refused: es normal, no un bug).
