@@ -1,7 +1,7 @@
 # Pasos — Clase 11 (rol estudiante)
 
-Guía operativa paso a paso. Cada paso termina con un checkpoint: no avances al
-siguiente sin tenerlo en verde. Los pasos 2, 3, ... se van concatenando aquí.
+Guía operativa paso a paso (completa: pasos 1 a 7). Cada paso termina con un
+checkpoint: no avances al siguiente sin tenerlo en verde.
 
 ## Paso 1 — T0: entorno vivo (para hacer ANTES de codificar)
 
@@ -166,7 +166,201 @@ Si todo está en verde, cierra el T2 como se debe:
 git add "Clase 11/starter/app.py"; git commit -m "T2: chat + memoria via orquestador (check 5/9)"
 ```
 
-## Checkpoint del paso 2 (avísame esto para agregar aquí el paso 3)
+## Checkpoint del paso 2 (avísame esto para seguir al paso 3)
 1. `check.py` en 5/9 (pega el conteo).
 2. `git log --oneline -1` de tu commit T2.
 3. Qué respondió a "¿y dónde están?" con `demo-01`.
+
+## Paso 3 — T3: panel grounding (botones + JSON crudo)
+
+> Meta: `check.py` enciende `grounding` (6/9). Reutiliza el T2, no lo reescribas.
+
+## 9. Lánzale el T3 (copia y pega este prompt)
+
+```text
+Rol: orquestador de la Clase 11. Ejecuta SOLO la tarea T3 de TASKS.md.
+Lee antes: SPEC (historia grounding), TASKS T3, AGENTS reglas,
+skills streamlit-chat-ui + n8n-webhook-client.
+Contexto: T2 hecho y commiteado (send_and_render existe y funciona, no lo toques).
+Delega: frontend agrega a la pestana Inventario y clima 3 botones
+("¿Hay osciloscopios?", "¿Hay Raspberry Pi?", "Clima Manizales") que reutilicen
+send_and_render y muestren respuesta + expander "JSON crudo"
+(usa post_chat directo si necesitas el JSON sin renderizar).
+Prohibido: tocar T4-T6, solucion-referencia/, secretos, archivos fuera de starter/app.py.
+Hecho = check.py con grounding en PASS. Evidencia: comando + output.
+```
+
+✅ Esperado: plan corto (solo frontend) y cambios solo en `starter/app.py`.
+
+## 10. Supervisa
+
+```bash
+git status --short; git diff --stat
+```
+
+- ❌ Si reescribe `send_and_render` o toca el sidebar/chat: detén y redirige con AGENTS regla 1: *"T3 solo agrega botones que reutilizan T2, revierte el resto"*.
+
+## 11. Verifica tú y commitea
+
+```bash
+python "Clase 11/starter/check.py"   # grounding en PASS -> 6/9
+```
+
+En la UI pulsa los 3 botones y abre el JSON crudo del clima.
+- ❌ Botón sin respuesta: mira si es 404/401 (paso 1, punto 4).
+```bash
+git add "Clase 11/starter/app.py"; git commit -m "T3: panel grounding (check 6/9)"
+```
+
+## Checkpoint del paso 3
+1. `check.py` en 6/9 (pega el conteo).
+2. Qué trae el JSON crudo del clima (una línea basta).
+
+## Paso 4 — T4: escritura con confirmación (mitad tú en n8n, mitad el agente)
+
+> Meta: `check.py` enciende `escritura` (7/9). Ojo: el tool se crea A MANO en
+> n8n (los agentes no clican UI); el formulario lo hace el orquestador.
+
+## 12. Primero TÚ en n8n (5 min), luego el prompt
+
+En n8n, sobre `Clase11 - Agente Logistica UNAL`: duplica el `Google Sheets Tool`
+→ `Operation: Append` → renómbralo `Inventario_Write` → `Document: Inventario
+Laboratorio UNAL` → `Sheet: Hoja 1` → pega el `toolDescription` restrictivo del
+`PLAN.md`. Pulsa **`Publish`** de nuevo y verifica en una ejecución de prueba
+que el tool existe. Recién entonces pega esto:
+```text
+Rol: orquestador de la Clase 11. Ejecuta SOLO la tarea T4 de TASKS.md.
+Lee antes: SPEC (historia escritura), TASKS T4, AGENTS reglas, skill streamlit-chat-ui.
+Contexto: el tool Inventario_Write YA existe en n8n (lo cree yo). T2/T3 hechos.
+Delega: frontend agrega formulario ID/Componente/Cantidad/Ubicacion/Estado +
+checkbox "Confirmo" + preview del chatInput generado. SIN check marcado NO hay
+POST bajo ninguna circunstancia (warning en UI). Con check: send_and_render.
+Prohibido: tocar T5-T6, solucion-referencia/, secretos, probar escrituras reales
+(las pruebas contra Sheets las hago YO). Hecho = check escritura en PASS.
+```
+
+## 13. Supervisa
+
+- Solo `starter/app.py`. Si el agente propone "probar" escribiendo de verdad en el Sheet: detén — punto 14 lo haces tú.
+
+## 14. Verifica tú (la parte delicada) y commitea
+
+1. Rellena el form con un ID REAL, **SIN** marcar el check, envía → warning, y verifica en n8n `Executions` que **NO** hay ejecución nueva.
+2. Marca el check, envía → respuesta del agente + ejecución nueva con `Inventario_Write` + fila visible en el Sheet.
+```bash
+python "Clase 11/starter/check.py"   # escritura en PASS -> 7/9
+git add "Clase 11/starter/app.py"; git commit -m "T4: escritura con confirmacion (check 7/9)"
+```
+
+## Checkpoint del paso 4
+1. `check.py` en 7/9 (pega el conteo).
+2. ID que registraste + confirmación de que sin check no hubo ejecución.
+
+## Paso 5 — T5: subir PDF e ingesta
+
+> Meta: ingesta funcionando con los 2 PDFs. El check seguirá en 7/9 (normal:
+> el check de PDF pide también el `FPDF` del T6). No te asustes.
+
+## 15. Lánzale el T5 (copia y pega este prompt)
+
+```text
+Rol: orquestador de la Clase 11. Ejecuta SOLO la tarea T5 de TASKS.md.
+Lee antes: SPEC (historia subir PDF + contrato 3.2), TASKS T5, AGENTS reglas,
+skills pdf-report + n8n-webhook-client.
+Contexto: T2-T4 hechos. La rama de ingesta YA esta publicada en n8n.
+Delega: frontend agrega file_uploader PDF (max 10 MB, rechaza con error legible),
+extraccion con pypdf (max 20000 chars, preview 1000 en expander, aviso si es
+escaneado sin texto), POST {"sessionId","filename","text"} a N8N_INGEST_URL y
+render del summary + expander JSON crudo.
+Prohibido: tocar T6, binarios hacia n8n (parseo en Streamlit, SPEC 3.2),
+solucion-referencia/, secretos. Hecho = ingesta OK con poema_test.pdf.
+```
+
+## 16. Supervisa
+
+- Solo `starter/app.py`. Si mete `multipart`/binarios o cambia el contrato JSON: detén y redirige con SPEC 3.2: *"parseo en Streamlit, a n8n solo texto"*.
+
+## 17. Verifica tú y commitea
+
+Sube `poema_test.pdf` y `reporte_planta.pdf`: en ambos debe salir `summary` + JSON crudo. `check.py` seguirá en 7/9 (el `FPDF` llega en el paso 6).
+```bash
+git add "Clase 11/starter/app.py"; git commit -m "T5: subida e ingesta PDF"
+```
+
+## Checkpoint del paso 5
+1. `summary` devuelto para `reporte_planta.pdf` (pégalo).
+2. Conteo del check (debe seguir 7/9).
+
+## Paso 6 — T6: generar reporte PDF
+
+> Meta: `check.py` enciende lo que falta del check de PDF (8/9) y el reporte se descarga y abre.
+
+## 18. Lánzale el T6 (copia y pega este prompt)
+
+```text
+Rol: orquestador de la Clase 11. Ejecuta SOLO la tarea T6 de TASKS.md.
+Lee antes: SPEC (historia generar PDF), TASKS T6, AGENTS reglas, skill pdf-report.
+Contexto: T2-T5 hechos (messages y last_summary viven en st.session_state).
+Delega: frontend agrega boton que arma el reporte con fpdf2 (portada: sesion,
+fecha; una seccion por intercambio user/agente; cierre con ultimo summary) y lo
+entrega con download_button "Descargar reporte.pdf".
+Prohibido: tocar T1-T5 ya commiteados salvo ajustes minimos, solucion-referencia/,
+secretos. Hecho = check.py 8/9.
+```
+
+## 19. Supervisa
+
+- Solo `starter/app.py`. Si rompe botones o formularios previos: detén y redirige con AGENTS regla 1.
+
+## 20. Verifica tú y commitea
+
+Pulsa generar, descarga `reporte.pdf`, ábrelo: debe traer sesión, fecha y al menos 1 intercambio.
+```bash
+python "Clase 11/starter/check.py"   # 8/9
+git add "Clase 11/starter/app.py"; git commit -m "T6: reporte PDF (check 8/9)"
+```
+
+## Checkpoint del paso 6
+1. `check.py` en 8/9 (pega el conteo).
+2. El PDF descargado abre y tiene tus intercambios (sí/no + cuántas páginas).
+
+## Paso 7 — T7+T8: ingesta por curl + QA final + demo
+
+> Meta: `check.py` 9/9, repo sin secretos y demo en vivo completa. Cierre de la clase.
+
+## 21. Lánzale el T7+T8 (último prompt, copia y pega)
+
+```text
+Rol: orquestador de la Clase 11. Ejecuta T7 y T8 de TASKS.md, en orden.
+Lee antes: TASKS T7+T8, AGENTS reglas, skill n8n-webhook-client.
+T7: prueba la rama de ingesta con curl POST JSON {"sessionId","filename","text"}
+a N8N_INGEST_URL y confirma {"ok":true,"summary":...}. Si da 404/401 diagnostica
+(publicado? /webhook/ vs /webhook-test/? localhost vs puerto Public?).
+T8: QA final — check.py 9/9, grep de secretos vacio
+(grep -ri "sk-\\|client_secret\\|authtoken" "Clase 11/starter" debe salir vacio),
+repaso del checklist SPEC S4.
+Prohibido: cambios funcionales salvo fixes que pida el QA, solucion-referencia/.
+Hecho = 9/9 + grep vacio. Evidencia: ambos outputs pegados.
+```
+
+## 22. Supervisa
+
+- Solo fixes menores. Si propone refactors grandes a estas alturas: detén, ya no es momento.
+
+## 23. Verifica tú, demo y cierre
+
+```bash
+python "Clase 11/starter/check.py"   # 9/9
+grep -ri "sk-\|client_secret\|authtoken" "Clase 11/starter"  # vacio
+```
+
+Demo en vivo (la nota): chat con memoria (`demo-01` recuerda, `demo-02` no),
+grounding, escritura SIN check (sin ejecución nueva) y CON check (fila en Sheets),
+ingesta de `reporte_planta.pdf`, reporte descargado.
+```bash
+git add -A; git commit -m "Clase 11 completa: check 9/9 + demo"
+```
+
+## Checkpoint final (clase construida)
+1. `check.py` en 9/9 + `grep` vacío (pega ambos).
+2. Demo hecha (sí/no + qué falló, si algo).
