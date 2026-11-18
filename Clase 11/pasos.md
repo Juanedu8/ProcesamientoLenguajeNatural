@@ -3,19 +3,27 @@
 Guía operativa paso a paso (completa: pasos 1 a 7). Cada paso termina con un
 checkpoint: no avances al siguiente sin tenerlo en verde.
 
+DÓNDE se hace cada cosa (etiqueta al inicio de cada sección):
+- `[n8n]` navegador, URL https de PORTS puerto 5678 (importar, Publish, credenciales, tools, Executions).
+- `[Streamlit]` navegador, URL de PORTS puerto 8501 (probar la UI: chat, botones, upload, reporte).
+- `[terminal-Codespace]` bash dentro del Codespace (docker, pruebas en vivo, `streamlit run`).
+- `[opencode-local]` tu terminal Windows con la sesión OpenCode (pegar prompts, el código se escribe aquí, commits).
+- `[navegador: github.com]` gestión del Codespace (ver estado, Start, Delete).
+
 ## Paso 1 — T0: entorno vivo (para hacer ANTES de codificar)
 
 > Meta del paso: n8n `Up`, 2 workflows en `Publish`, contrato verificado con
 > `Status: 200` y `check.py` en **3/9 en verde**. Sin esto, nada de T2.
 
-## 1. Fork y Codespace (rol estudiante)
+## 1. Fork y Codespace [navegador: github.com]
 
 1. En GitHub: `Fork` del repo (si no lo tienes) → en TU fork
    `Code > Codespaces > Create codespace on main`.
-2. Todo lo de abajo se hace **dentro del Codespace**, no en tu Windows.
-   El n8n y el Streamlit solo existen ahí.
+2. Reparte el trabajo: **n8n, Streamlit y docker viven en el Codespace**;
+   **OpenCode, el código y los commits viven en tu Windows (opencode-local)**.
+   Git es el puente entre los dos (ver sección Puente).
 
-## 2. Actualiza y levanta SOLO el n8n (no el compose completo)
+## 2. Actualiza y levanta SOLO el n8n [terminal-Codespace]
 
 ```bash
 git pull
@@ -38,13 +46,13 @@ Reglas que aprendimos a golpes:
 ✅ Esperado: `pln-clase10-n8n-n8n-1 Up ... 0.0.0.0:5678->5678/tcp` y en los
 logs `Editor is ready` / `n8n ready on ::, port 5678`.
 
-### Si el Codespace muere ("not available")
+### Si el Codespace muere ("not available") [navegador: github.com]
 1. En otra pestaña abre `github.com/codespaces` y mira el estado:
    - `Running` → espera 3–5 min (estaba descargando) y reabre.
    - `Failed` → `Restart`; si no revive, `Delete` + `Create codespace on main`.
 2. No pierdes nada: todo está en git. Solo reimportarías los workflows (punto 3).
 
-## 3. Importa el workflow único (2 ramas) y publícalo
+## 3. Importa el workflow único (2 ramas) y publícalo [n8n]
 
 1. Abre n8n por la URL `https` de la pestaña `PORTS` (puerto 5678),
    **nunca** por `http://localhost:5678` en el navegador.
@@ -57,7 +65,7 @@ logs `Editor is ready` / `n8n ready on ::, port 5678`.
    - `.../webhook/agente-logistica-unal`
    - `.../webhook/ingesta-reporte-pdf`
 
-## 4. Verifica el contrato (Clase 10 manda)
+## 4. Verifica el contrato (Clase 10 manda) [terminal-Codespace]
 
 ```bash
 cd /workspaces/ProcesamientoLenguajeNatural
@@ -70,7 +78,7 @@ python "Clase 11/Peticion.py" --url http://localhost:5678/webhook/agente-logisti
   puerto en `Private` desde dentro del Codespace. Repite con
   `http://localhost:5678/...` tal cual.
 
-## 5. Starter + juez
+## 5. Starter + juez [terminal-Codespace]
 
 ```bash
 pip install -r "Clase 11/starter/requirements.txt"
@@ -96,6 +104,21 @@ python "Clase 11/starter/check.py"
 2. `Status: 200` del punto 4.
 3. `check.py` en 3/9 (4/9 si n8n respondió al contrato vivo).
 
+## Puente local ↔ Codespace (léeme una vez, úsalo en cada paso)
+
+- El código lo escriben los subagentes en **opencode-local** (tu Windows).
+  Ahí se commitea: `git add ...; git commit -m "T#: ..."; git push`.
+- Las pruebas en vivo corren en **terminal-Codespace**: `git pull` primero,
+  luego `check.py`, `Peticion.py`, `curl`, `streamlit run`.
+- Orden de cada "verifica y commitea": (1) en local, `check.py` estático +
+  `git diff` limpio salvo `starter/`; (2) commit + push en local;
+  (3) `git pull` en Codespace + prueba viva.
+- Si algo falla en vivo pero en local estaba verde: 99% es n8n (no publicado,
+  puerto, URL), no el código — vuelve al paso 1, punto 4.
+- `localhost:5678` SOLO existe dentro del Codespace. Desde opencode-local
+  ningún `curl`/`Peticion.py`/`check.py --vivo` llega a n8n (verás SKIP o
+  connection refused: es normal, no un bug).
+
 ## Paso 2 — T2 con OpenCode: el orquestador trabaja, tú diriges
 
 > Meta: `check.py` enciende `cliente chat` + `chat UI` (5/9) SIN que tú escribas
@@ -104,10 +127,10 @@ python "Clase 11/starter/check.py"
 > TASKS + `check.py` son el juez. Trabajan SOLO en `Clase 11/starter/app.py`.
 > La referencia (`solucion-referencia/`) no se mira ni se menciona.
 
-## 6. Abre OpenCode y lánzale el T2 (copia y pega este prompt)
+## 6. Abre OpenCode en local y lánzale el T2 [opencode-local]
 
+Abre tu terminal Windows en la raíz de TU clon local del repo y corre:
 ```bash
-cd /workspaces/ProcesamientoLenguajeNatural
 opencode
 ```
 
@@ -118,7 +141,9 @@ Lee antes: Clase 11/SPEC.md (historias chat+memoria y criterios), Clase 11/PLAN.
 (decision Streamlit), Clase 11/TASKS.md (T2), Clase 11/AGENTS.md (las 7 reglas)
 y los skills Clase 11/skills/n8n-webhook-client/SKILL.md +
 Clase 11/skills/streamlit-chat-ui/SKILL.md.
-Delega: explore verifica el contrato vivo con Peticion.py (Status 200);
+Delega: explore revisa el contrato EN ARCHIVOS (paths y payload del workflow JSON
+vs SPEC, sin red — el vivo lo hago yo en el Codespace porque localhost:5678
+solo existe allá);
 frontend implementa UNICAMENTE T2 en Clase 11/starter/app.py
 (parse_output, post_chat con timeout 120 y errores 404/401 en espanol,
 send_and_render, pestana Chat con historial + chat_input).
@@ -134,9 +159,12 @@ Reglas de lanzamiento que aprendimos a golpes:
 
 ✅ Esperado: el orquestador responde con su plan (explore → frontend) y empieza a trabajar. Si en cambio te pregunta qué hacer, no pegaste el contexto: repite el prompt.
 
-## 7. Supervisa a los subagentes (tú eres el QA, no el teclista)
+## 7. Supervisa a los subagentes (tú eres el QA, no el teclista) [opencode-local]
 
-- `explore` debe mostrarte `Status: 200` de `Peticion.py`. Si no lo logra, el problema es n8n (vuelve al punto 4 del paso 1), no el código: detén al orquestador y arregla n8n tú.
+- `explore` entrega el diagnóstico del contrato en archivos (paths, payload,
+  respuesta esperada). El `Status: 200` vivo lo sacas TÚ en el Codespace
+  (punto 4 del paso 1). Si explore dice que `Peticion.py` no conecta desde
+  local, es normal: `localhost:5678` no existe en tu Windows.
 - `frontend` solo puede tocar `starter/app.py`. Vigila con:
 ```bash
 git status --short; git diff --stat
@@ -144,9 +172,14 @@ git status --short; git diff --stat
 - ❌ Si ves cambios fuera de `starter/` (referencia, workflows, Pagina): detén y redirige con la regla 1 de `AGENTS.md`: *"SPEC manda: solo T2 en starter/app.py, revierte el resto"*.
 - ❌ Si propone credenciales quemadas o URLs distintas a las del SPEC: detén y redirige con la regla 2: *"nada de secretos en el repo, URLs solo de variables + sidebar"*.
 
-## 8. Verifica TÚ (el juez no se delega)
+## 8. Verifica TÚ (el juez no se delega) [terminal-Codespace + Streamlit]
 
+El código quedó en tu Windows (lo hizo el agente). Pásalo al Codespace:
 ```bash
+# en opencode-local:
+git add "Clase 11/starter/app.py"; git commit -m "T2: chat + memoria via orquestador"; git push
+# en terminal-Codespace:
+git pull
 python "Clase 11/starter/check.py"
 streamlit run "Clase 11/starter/app.py"   # UI en :8501 de PORTS
 ```
@@ -161,10 +194,8 @@ En la UI, con `session_id demo-01`:
 - ❌ Si el spinner nunca termina: n8n caído o workflow sin `Publish`. Vuelve al punto 4 del paso 1.
 - ❌ Si el juez sigue en FAIL tras el agente: pégale al orquestador el output tal cual de `check.py` y pídele que corrija solo eso.
 
-Si todo está en verde, cierra el T2 como se debe:
-```bash
-git add "Clase 11/starter/app.py"; git commit -m "T2: chat + memoria via orquestador (check 5/9)"
-```
+Si todo está en verde, el commit ya quedó hecho arriba (se commitea ANTES de la
+prueba viva para que el `git log` cuente la historia por tareas).
 
 ## Checkpoint del paso 2 (avísame esto para seguir al paso 3)
 1. `check.py` en 5/9 (pega el conteo).
@@ -175,7 +206,7 @@ git add "Clase 11/starter/app.py"; git commit -m "T2: chat + memoria via orquest
 
 > Meta: `check.py` enciende `grounding` (6/9). Reutiliza el T2, no lo reescribas.
 
-## 9. Lánzale el T3 (copia y pega este prompt)
+## 9. Lánzale el T3 (copia y pega este prompt) [opencode-local]
 
 ```text
 Rol: orquestador de la Clase 11. Ejecuta SOLO la tarea T3 de TASKS.md.
@@ -192,7 +223,7 @@ Hecho = check.py con grounding en PASS. Evidencia: comando + output.
 
 ✅ Esperado: plan corto (solo frontend) y cambios solo en `starter/app.py`.
 
-## 10. Supervisa
+## 10. Supervisa [opencode-local]
 
 ```bash
 git status --short; git diff --stat
@@ -200,7 +231,9 @@ git status --short; git diff --stat
 
 - ❌ Si reescribe `send_and_render` o toca el sidebar/chat: detén y redirige con AGENTS regla 1: *"T3 solo agrega botones que reutilizan T2, revierte el resto"*.
 
-## 11. Verifica tú y commitea
+## 11. Verifica tú y commitea [terminal-Codespace + Streamlit]
+
+Pasa el código al Codespace (`push` en local, `git pull` aquí) y luego:
 
 ```bash
 python "Clase 11/starter/check.py"   # grounding en PASS -> 6/9
@@ -221,7 +254,7 @@ git add "Clase 11/starter/app.py"; git commit -m "T3: panel grounding (check 6/9
 > Meta: `check.py` enciende `escritura` (7/9). Ojo: el tool se crea A MANO en
 > n8n (los agentes no clican UI); el formulario lo hace el orquestador.
 
-## 12. Primero TÚ en n8n (5 min), luego el prompt
+## 12. Primero TÚ en n8n (5 min), luego el prompt [n8n + opencode-local]
 
 En n8n, sobre `Clase11 - Agente Logistica UNAL`: duplica el `Google Sheets Tool`
 → `Operation: Append` → renómbralo `Inventario_Write` → `Document: Inventario
@@ -239,11 +272,13 @@ Prohibido: tocar T5-T6, solucion-referencia/, secretos, probar escrituras reales
 (las pruebas contra Sheets las hago YO). Hecho = check escritura en PASS.
 ```
 
-## 13. Supervisa
+## 13. Supervisa [opencode-local]
 
 - Solo `starter/app.py`. Si el agente propone "probar" escribiendo de verdad en el Sheet: detén — punto 14 lo haces tú.
 
-## 14. Verifica tú (la parte delicada) y commitea
+## 14. Verifica tú (la parte delicada) y commitea [terminal-Codespace + n8n + Streamlit]
+
+Pasa el código al Codespace (`push` en local, `git pull` aquí) y luego:
 
 1. Rellena el form con un ID REAL, **SIN** marcar el check, envía → warning, y verifica en n8n `Executions` que **NO** hay ejecución nueva.
 2. Marca el check, envía → respuesta del agente + ejecución nueva con `Inventario_Write` + fila visible en el Sheet.
@@ -261,7 +296,7 @@ git add "Clase 11/starter/app.py"; git commit -m "T4: escritura con confirmacion
 > Meta: ingesta funcionando con los 2 PDFs. El check seguirá en 7/9 (normal:
 > el check de PDF pide también el `FPDF` del T6). No te asustes.
 
-## 15. Lánzale el T5 (copia y pega este prompt)
+## 15. Lánzale el T5 (copia y pega este prompt) [opencode-local]
 
 ```text
 Rol: orquestador de la Clase 11. Ejecuta SOLO la tarea T5 de TASKS.md.
@@ -276,11 +311,13 @@ Prohibido: tocar T6, binarios hacia n8n (parseo en Streamlit, SPEC 3.2),
 solucion-referencia/, secretos. Hecho = ingesta OK con poema_test.pdf.
 ```
 
-## 16. Supervisa
+## 16. Supervisa [opencode-local]
 
 - Solo `starter/app.py`. Si mete `multipart`/binarios o cambia el contrato JSON: detén y redirige con SPEC 3.2: *"parseo en Streamlit, a n8n solo texto"*.
 
-## 17. Verifica tú y commitea
+## 17. Verifica tú y commitea [terminal-Codespace + Streamlit]
+
+Pasa el código al Codespace (`push` en local, `git pull` aquí) y luego:
 
 Sube `poema_test.pdf` y `reporte_planta.pdf`: en ambos debe salir `summary` + JSON crudo. `check.py` seguirá en 7/9 (el `FPDF` llega en el paso 6).
 ```bash
@@ -295,7 +332,7 @@ git add "Clase 11/starter/app.py"; git commit -m "T5: subida e ingesta PDF"
 
 > Meta: `check.py` enciende lo que falta del check de PDF (8/9) y el reporte se descarga y abre.
 
-## 18. Lánzale el T6 (copia y pega este prompt)
+## 18. Lánzale el T6 (copia y pega este prompt) [opencode-local]
 
 ```text
 Rol: orquestador de la Clase 11. Ejecuta SOLO la tarea T6 de TASKS.md.
@@ -308,11 +345,13 @@ Prohibido: tocar T1-T5 ya commiteados salvo ajustes minimos, solucion-referencia
 secretos. Hecho = check.py 8/9.
 ```
 
-## 19. Supervisa
+## 19. Supervisa [opencode-local]
 
 - Solo `starter/app.py`. Si rompe botones o formularios previos: detén y redirige con AGENTS regla 1.
 
-## 20. Verifica tú y commitea
+## 20. Verifica tú y commitea [terminal-Codespace + Streamlit]
+
+Pasa el código al Codespace (`push` en local, `git pull` aquí) y luego:
 
 Pulsa generar, descarga `reporte.pdf`, ábrelo: debe traer sesión, fecha y al menos 1 intercambio.
 ```bash
@@ -328,14 +367,16 @@ git add "Clase 11/starter/app.py"; git commit -m "T6: reporte PDF (check 8/9)"
 
 > Meta: `check.py` 9/9, repo sin secretos y demo en vivo completa. Cierre de la clase.
 
-## 21. Lánzale el T7+T8 (último prompt, copia y pega)
+## 21. Lánzale el T7+T8 (último prompt, copia y pega) [opencode-local]
 
 ```text
 Rol: orquestador de la Clase 11. Ejecuta T7 y T8 de TASKS.md, en orden.
 Lee antes: TASKS T7+T8, AGENTS reglas, skill n8n-webhook-client.
-T7: prueba la rama de ingesta con curl POST JSON {"sessionId","filename","text"}
-a N8N_INGEST_URL y confirma {"ok":true,"summary":...}. Si da 404/401 diagnostica
-(publicado? /webhook/ vs /webhook-test/? localhost vs puerto Public?).
+T7: prepara el comando curl exacto contra N8N_INGEST_URL con
+{"sessionId","filename","text"} y valida el contrato contra el JSON del workflow
+(la ejecución en vivo la hago YO en el Codespace, localhost solo existe allá).
+Si el JSON promete {"ok":true,"summary":...} y el workflow esta publicado,
+diagnostica (publicado? /webhook/ vs /webhook-test/?).
 T8: QA final — check.py 9/9, grep de secretos vacio
 (grep -ri "sk-\\|client_secret\\|authtoken" "Clase 11/starter" debe salir vacio),
 repaso del checklist SPEC S4.
@@ -343,13 +384,18 @@ Prohibido: cambios funcionales salvo fixes que pida el QA, solucion-referencia/.
 Hecho = 9/9 + grep vacio. Evidencia: ambos outputs pegados.
 ```
 
-## 22. Supervisa
+## 22. Supervisa [opencode-local]
 
 - Solo fixes menores. Si propone refactors grandes a estas alturas: detén, ya no es momento.
 
-## 23. Verifica tú, demo y cierre
+## 23. Verifica tú, demo y cierre [terminal-Codespace + n8n + Streamlit]
+
+Pasa lo último al Codespace (`push` en local, `git pull` aquí) y corre en vivo:
 
 ```bash
+curl -X POST http://localhost:5678/webhook/ingesta-reporte-pdf \
+  -H "Content-Type: application/json" \
+  -d '{"sessionId":"demo-01","filename":"prueba.json","text":"Contenido de prueba para verificar la rama de ingesta del workflow."}'
 python "Clase 11/starter/check.py"   # 9/9
 grep -ri "sk-\|client_secret\|authtoken" "Clase 11/starter"  # vacio
 ```
