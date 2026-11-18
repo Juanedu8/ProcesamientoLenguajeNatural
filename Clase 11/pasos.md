@@ -1,4 +1,9 @@
-# Paso 1 — T0: entorno vivo (para hacer ANTES de codificar)
+# Pasos — Clase 11 (rol estudiante)
+
+Guía operativa paso a paso. Cada paso termina con un checkpoint: no avances al
+siguiente sin tenerlo en verde. Los pasos 2, 3, ... se van concatenando aquí.
+
+## Paso 1 — T0: entorno vivo (para hacer ANTES de codificar)
 
 > Meta del paso: n8n `Up`, 2 workflows en `Publish`, contrato verificado con
 > `Status: 200` y `check.py` en **3/9 en verde**. Sin esto, nada de T2.
@@ -85,7 +90,7 @@ python "Clase 11/starter/check.py"
 3/9 en verde (4/9 si n8n responde).
 ```
 
-## 6. Checkpoint (avísame esto para pasar al paso 2)
+## Checkpoint del paso 1 (avísame esto para agregar aquí el paso 2)
 1. `docker compose ps` → n8n `Up`.
 2. `Status: 200` del punto 4 (pega las 2 primeras líneas).
 3. Conteo del check (`3/9`, `4/9`...).
