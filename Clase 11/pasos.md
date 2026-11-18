@@ -120,11 +120,24 @@ python "Clase 11/starter/check.py"
 ## 6. Abre OpenCode en el Codespace y lánzale el T2 [terminal-Codespace]
 
 Abre una SEGUNDA pestaña de terminal en el Codespace (la primera queda libre
-para docker/pruebas), entra a la raíz del repo y corre:
+para docker/pruebas) y verifica si `opencode` existe:
+```bash
+opencode --version
+```
+Si no lo tienes, instálalo (una sola vez por Codespace, comando oficial OpenCode 2):
+```bash
+curl -fsSL opencode.ai/v2/install | bash
+source ~/.bashrc   # o abre terminal nueva: el instalador agrega ~/.opencode/bin al PATH
+opencode --version
+```
+Luego entra a la raíz del repo y corre:
 ```bash
 cd /workspaces/ProcesamientoLenguajeNatural
 opencode
 ```
+Al abrirlo la primera vez, con `/connect` vinculas tu proveedor de modelo
+(API key). Sin eso el agente no responde: es el único secreto que cada uno pone
+en SU Codespace, nunca en el repo.
 
 Pega esto como primer mensaje (es tu contrato con el orquestador):
 ```text
