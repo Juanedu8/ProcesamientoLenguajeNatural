@@ -233,17 +233,17 @@ git status --short; git diff --stat
 
 ## 11. Verifica tú y commitea [terminal-Codespace + Streamlit]
 
-Pasa el código al Codespace (`push` en local, `git pull` aquí) y luego:
-
+El agente terminó en local. Publica su trabajo y tráelo al Codespace:
 ```bash
+# en opencode-local:
+git add "Clase 11/starter/app.py"; git commit -m "T3: panel grounding"; git push
+# en terminal-Codespace:
+git pull
 python "Clase 11/starter/check.py"   # grounding en PASS -> 6/9
 ```
 
-En la UI pulsa los 3 botones y abre el JSON crudo del clima.
+En la UI (`:8501`) pulsa los 3 botones y abre el JSON crudo del clima.
 - ❌ Botón sin respuesta: mira si es 404/401 (paso 1, punto 4).
-```bash
-git add "Clase 11/starter/app.py"; git commit -m "T3: panel grounding (check 6/9)"
-```
 
 ## Checkpoint del paso 3
 1. `check.py` en 6/9 (pega el conteo).
@@ -278,14 +278,17 @@ Prohibido: tocar T5-T6, solucion-referencia/, secretos, probar escrituras reales
 
 ## 14. Verifica tú (la parte delicada) y commitea [terminal-Codespace + n8n + Streamlit]
 
-Pasa el código al Codespace (`push` en local, `git pull` aquí) y luego:
+El agente terminó en local. Publica su trabajo y tráelo al Codespace:
+```bash
+# en opencode-local:
+git add "Clase 11/starter/app.py"; git commit -m "T4: escritura con confirmacion"; git push
+# en terminal-Codespace:
+git pull
+python "Clase 11/starter/check.py"   # escritura en PASS -> 7/9
+```
 
 1. Rellena el form con un ID REAL, **SIN** marcar el check, envía → warning, y verifica en n8n `Executions` que **NO** hay ejecución nueva.
 2. Marca el check, envía → respuesta del agente + ejecución nueva con `Inventario_Write` + fila visible en el Sheet.
-```bash
-python "Clase 11/starter/check.py"   # escritura en PASS -> 7/9
-git add "Clase 11/starter/app.py"; git commit -m "T4: escritura con confirmacion (check 7/9)"
-```
 
 ## Checkpoint del paso 4
 1. `check.py` en 7/9 (pega el conteo).
@@ -317,12 +320,15 @@ solucion-referencia/, secretos. Hecho = ingesta OK con poema_test.pdf.
 
 ## 17. Verifica tú y commitea [terminal-Codespace + Streamlit]
 
-Pasa el código al Codespace (`push` en local, `git pull` aquí) y luego:
+El agente terminó en local. Publica su trabajo y tráelo al Codespace:
+```bash
+# en opencode-local:
+git add "Clase 11/starter/app.py"; git commit -m "T5: subida e ingesta PDF"; git push
+# en terminal-Codespace:
+git pull
+```
 
 Sube `poema_test.pdf` y `reporte_planta.pdf`: en ambos debe salir `summary` + JSON crudo. `check.py` seguirá en 7/9 (el `FPDF` llega en el paso 6).
-```bash
-git add "Clase 11/starter/app.py"; git commit -m "T5: subida e ingesta PDF"
-```
 
 ## Checkpoint del paso 5
 1. `summary` devuelto para `reporte_planta.pdf` (pégalo).
@@ -351,13 +357,16 @@ secretos. Hecho = check.py 8/9.
 
 ## 20. Verifica tú y commitea [terminal-Codespace + Streamlit]
 
-Pasa el código al Codespace (`push` en local, `git pull` aquí) y luego:
+El agente terminó en local. Publica su trabajo y tráelo al Codespace:
+```bash
+# en opencode-local:
+git add "Clase 11/starter/app.py"; git commit -m "T6: reporte PDF"; git push
+# en terminal-Codespace:
+git pull
+python "Clase 11/starter/check.py"   # 8/9
+```
 
 Pulsa generar, descarga `reporte.pdf`, ábrelo: debe traer sesión, fecha y al menos 1 intercambio.
-```bash
-python "Clase 11/starter/check.py"   # 8/9
-git add "Clase 11/starter/app.py"; git commit -m "T6: reporte PDF (check 8/9)"
-```
 
 ## Checkpoint del paso 6
 1. `check.py` en 8/9 (pega el conteo).
@@ -390,9 +399,12 @@ Hecho = 9/9 + grep vacio. Evidencia: ambos outputs pegados.
 
 ## 23. Verifica tú, demo y cierre [terminal-Codespace + n8n + Streamlit]
 
-Pasa lo último al Codespace (`push` en local, `git pull` aquí) y corre en vivo:
-
+Cierra en local y trae todo al Codespace:
 ```bash
+# en opencode-local (recoge los fixes del QA, si los hubo):
+git add -A; git commit -m "Clase 11 completa: check 9/9 + demo"; git push
+# en terminal-Codespace:
+git pull
 curl -X POST http://localhost:5678/webhook/ingesta-reporte-pdf \
   -H "Content-Type: application/json" \
   -d '{"sessionId":"demo-01","filename":"prueba.json","text":"Contenido de prueba para verificar la rama de ingesta del workflow."}'
@@ -403,9 +415,8 @@ grep -ri "sk-\|client_secret\|authtoken" "Clase 11/starter"  # vacio
 Demo en vivo (la nota): chat con memoria (`demo-01` recuerda, `demo-02` no),
 grounding, escritura SIN check (sin ejecución nueva) y CON check (fila en Sheets),
 ingesta de `reporte_planta.pdf`, reporte descargado.
-```bash
-git add -A; git commit -m "Clase 11 completa: check 9/9 + demo"
-```
+
+(El commit ya quedó hecho arriba, antes de la demo: se commitea en local y se demuestra en el Codespace.)
 
 ## Checkpoint final (clase construida)
 1. `check.py` en 9/9 + `grep` vacío (pega ambos).
