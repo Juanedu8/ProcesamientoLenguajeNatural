@@ -125,13 +125,15 @@ docker compose up -d --force-recreate n8n
 
 **Banner "Connection lost" todo el tiempo:**
 Causa: el editor de n8n pierde el canal de eventos porque genera sus URLs con `localhost`, pero tú lo abres por la URL forwardeada del proxy de Codespaces.
-1. Abre n8n **siempre** con la URL https de la pestaña `PORTS` (`https://TU-CODESPACE-5678.app.github.dev`), nunca con `http://localhost:5678`.
-2. Si persiste: copia esa URL, descomenta `N8N_EDITOR_BASE_URL` y `WEBHOOK_URL` en `.devcontainer/docker-compose.yml` con tu URL (con `/` final) y recrea:
+Ya es automático: `docker-compose.yml` autoconstruye `N8N_EDITOR_BASE_URL` y `N8N_WEBHOOK_URL` con tu Codespace real (`${CODESPACE_NAME}-5678.${GITHUB_CODESPACES_PORT_FORWARDING_DOMAIN}`) + `N8N_PUSH_BACKEND=sse`. Solo:
+1. Abre n8n **siempre** con la URL https de la pestaña `PORTS`, nunca con `http://localhost:5678`.
+2. Si lo viste con una versión vieja del repo: `git pull` y recrea:
 ```bash
 cd .devcontainer
 docker compose up -d --force-recreate n8n
 ```
 3. Recarga el navegador con caché limpia (Ctrl+Shift+R). Verifica que el puerto 5678 esté en `Private` o `Public` en `PORTS` (con `Private` basta si lo abres en el mismo navegador donde logueaste GitHub).
+Manual (solo si lo anterior falla o corres fuera de Codespaces): exporta `N8N_EDITOR_BASE_URL` y `N8N_WEBHOOK_URL` con tu URL (con `/` final) antes del `up`.
 
 ---
 

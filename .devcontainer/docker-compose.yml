@@ -18,20 +18,22 @@ services:
     environment:
       - N8N_HOST=0.0.0.0
       - N8N_PORT=5678
-      - N8N_PROTOCOL=http
+      - N8N_PROTOCOL=https
+      # --- Anti "Connection lost": URLs autoconstruidas, cero edicion manual ---
+      # Codespaces expone CODESPACE_NAME y GITHUB_CODESPACES_PORT_FORWARDING_DOMAIN;
+      # compose las interpola al hacer up -> https://<nombre>-5678.<dominio>/
+      # Cada estudiante/fork obtiene su URL real automaticamente. Solo recrear:
+      #   docker compose up -d --force-recreate n8n
+      # y abrir n8n SIEMPRE con la URL https de PORTS, no con localhost.
+      # Uso local fuera de Codespaces: exporta N8N_EDITOR_BASE_URL y
+      # N8N_WEBHOOK_URL antes del up (ej. http://localhost:5678/).
+      - N8N_EDITOR_BASE_URL=${N8N_EDITOR_BASE_URL:-https://${CODESPACE_NAME}-5678.${GITHUB_CODESPACES_PORT_FORWARDING_DOMAIN}/}
+      - N8N_WEBHOOK_URL=${N8N_WEBHOOK_URL:-https://${CODESPACE_NAME}-5678.${GITHUB_CODESPACES_PORT_FORWARDING_DOMAIN}/}
+      - N8N_PUSH_BACKEND=sse
+      - N8N_SECURE_COOKIE=false
       - GENERIC_TIMEZONE=America/Bogota
       - TZ=America/Bogota
       - N8N_ENFORCE_SETTINGS_FILE_PERMISSIONS=true
-      # --- Anti "Connection lost" en Codespaces ---
-      # n8n genera las URLs del editor y los eventos push con estas variables.
-      # Si ves el banner "Connection lost", haz esto:
-      # 1. Copia tu URL forwardeada de la pestana PORTS
-      #    (ej: https://TU-CODESPACE-5678.app.github.dev)
-      # 2. Descomenta las dos lineas, pega tu URL (con / final) y recrea:
-      #      docker compose up -d --force-recreate n8n
-      # 3. Abre n8n SIEMPRE con esa URL https, no con localhost.
-      # - N8N_EDITOR_BASE_URL=https://TU-CODESPACE-5678.app.github.dev/
-      # - WEBHOOK_URL=https://TU-CODESPACE-5678.app.github.dev/
     volumes:
       - n8n_data:/home/node/.n8n
       # Monta el repo (solo lectura) para que el nodo Spreadsheet File
