@@ -102,7 +102,10 @@ python "Clase 11/starter/check.py"
 > conversa con memoria real. Trabaja SOLO en `Clase 11/starter/app.py`.
 > La referencia (`solucion-referencia/`) no se mira.
 
-### 1. `parse_output(data)` — el contrato de la 10 en una función
+## 6. `parse_output(data)` — el contrato de la 10 en una función
+
+En `starter/app.py` reemplaza el `raise NotImplementedError` por:
+
 ```python
 def parse_output(data):
     if isinstance(data, list) and data and isinstance(data[0], dict) and "output" in data[0]:
@@ -112,42 +115,66 @@ def parse_output(data):
     return None  # el llamador muestra el JSON crudo
 ```
 
-### 2. `post_chat(url, sid, msg)` — skill `n8n-webhook-client`
+Regla: n8n responde `[{"output": "..."}]` o `{"output": "..."}` según versión.
+Si no hay `output`, no inventes: devuelve `None` y quien llama muestra el texto crudo.
+
+## 7. `post_chat(url, sid, msg)` — skill `n8n-webhook-client`
+
 ```python
 r = requests.post(url, json={"sessionId": sid, "chatInput": msg}, timeout=120)
 ```
-- `404` → `raise RuntimeError("404: workflow no publicado o path mal (usa /webhook/, no /webhook-test/).")`
-- `401` → `raise RuntimeError("401: puerto 5678 en Private con URL https. Usa http://localhost:5678/... o pon el puerto en Public.")`
+
+Y después del POST, en este orden:
+- ❌ `404` → `raise RuntimeError("404: workflow no publicado o path mal (usa /webhook/, no /webhook-test/).")`
+- ❌ `401` → `raise RuntimeError("401: puerto 5678 en Private con URL https. Usa http://localhost:5678/... o pon el puerto en Public.")`
 - `r.raise_for_status()`, luego `r.json()` en `try/except ValueError` (si no es JSON, devuelve `r.text`).
 - Retorna `parse_output(data)` si no es `None`, si no el texto crudo.
 
-### 3. `send_and_render(prompt)` — el ciclo completo
-1. `st.session_state.messages.append({"role": "user", "content": prompt})`
-2. `with st.chat_message("user"): st.markdown(prompt)`
-3. `with st.chat_message("assistant"), st.spinner("Consultando al agente..."):`
-   `try: answer = post_chat(...)` / `except Exception as e: answer = f"Error: {e}"`
-4. Append del assistant + `st.markdown(answer)`. Retorna `answer` (lo reusa el T4).
+## 8. `send_and_render(prompt)` + pestaña Chat — el ciclo completo
 
-### 4. Pestaña Chat — historial + entrada
 ```python
-with tab_chat:
-    for m in st.session_state.messages:
-        with st.chat_message(m["role"]):
-            st.markdown(m["content"])
-    if prompt := st.chat_input("Pregunta al agente (ej. ¿Hay osciloscopios?)"):
-        send_and_render(prompt)
+def send_and_render(prompt):
+    st.session_state.messages.append({"role": "user", "content": prompt})
+    with st.chat_message("user"):
+        st.markdown(prompt)
+    with st.chat_message("assistant"), st.spinner("Consultando al agente..."):
+        try:
+            answer = post_chat(chat_url, session_id, prompt)
+        except Exception as e:  # noqa: BLE001 - mensaje legible para clase
+            answer = f"Error: {e}"
+    st.session_state.messages.append({"role": "assistant", "content": answer})
+    with st.chat_message("assistant"):
+        st.markdown(answer)
+    return answer  # lo reusa el T4
 ```
 
-### 5. Verifica (juez + vivo)
-```bash
-python "Clase 11/starter/check.py"   # cliente chat + chat UI en PASS -> 5/9
-streamlit run "Clase 11/starter/app.py"
+Y en `with tab_chat:`:
+```python
+for m in st.session_state.messages:
+    with st.chat_message(m["role"]):
+        st.markdown(m["content"])
+if prompt := st.chat_input("Pregunta al agente (ej. ¿Hay osciloscopios?)"):
+    send_and_render(prompt)
 ```
-En la UI (`:8501` en `PORTS`):
-1. Pregunta "¿Hay osciloscopios?" con `session_id demo-01` → responde el agente.
-2. Pregunta "¿y dónde están?" **mismo session** → usa contexto (memoria OK).
+
+## 9. Verifica (juez + vivo)
+
+```bash
+python "Clase 11/starter/check.py"
+streamlit run "Clase 11/starter/app.py"   # UI en :8501 de PORTS
+```
+
+✅ Esperado en el juez: `cliente chat` + `chat UI` en `PASS` → 5/9 en verde.
+
+En la UI, con `session_id demo-01`:
+1. Pregunta "¿Hay osciloscopios?" → responde el agente.
+2. Pregunta "¿y dónde están?" (mismo session) → usa contexto (memoria OK).
 3. Cambia a `demo-02`, repite → empieza de cero (memoria aislada OK).
+
+- ❌ Si el spinner nunca termina: n8n caído o workflow sin `Publish`. Vuelve al punto 4 del paso 1.
+- ❌ Si sale `Error: 404/401`: lee el mensaje, es el mismo diagnóstico del paso 1.
 
 ## Checkpoint del paso 2 (avísame esto para agregar aquí el paso 3)
 1. `check.py` en 5/9 (pega el conteo).
-2. Las 3 pruebas de memoria de la UI (qué respondió a "¿y dónde están?" con `demo-01`).
+2. Qué respondió a "¿y dónde están?" con `demo-01` (pega la respuesta).
+3. Qué pasó con `demo-02` (una línea basta).
