@@ -1,7 +1,7 @@
 # Clase 11 — Interfaz agéntica para el agente logístico (Clase 10)
 
 Spec-Driven Development con orquestador + subagentes + skills.
-Frontend principal: **Streamlit en Codespace**. GitHub Pages solo como vitrina.
+Frontend: **Streamlit en Codespace**.
 
 ## Contrato con la Clase 10 (no romper)
 

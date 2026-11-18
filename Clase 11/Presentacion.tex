@@ -67,9 +67,9 @@ POST /webhook/agente-logistica-unal
 \begin{frame}{El problema: un webhook no es un producto}
   \begin{itemize}
     \item \texttt{Peticion.py} sirve para probar, no para operar: sin historial, sin confirmaciones, sin reportes.
-    \item Opción A: chat JS en GitHub Pages $\to$ pega directo al proxy \texttt{*.app.github.dev}: CORS, puerto en \texttt{Private} $\to$ \texttt{401}, URL efímera por Codespace. Frágil.
-    \item Opción B: \textbf{Streamlit dentro del mismo Codespace} $\to$ llama por \texttt{http://localhost:5678} con \texttt{requests} server-side: cero CORS, cero auth del proxy.
-    \item Decisión de la clase: \textbf{Streamlit como producto, Pages como vitrina}.
+    \item La interfaz debe vivir \textbf{dentro del mismo Codespace}: llama por \texttt{http://localhost:5678} con \texttt{requests} server-side.
+    \item Así evita lo que ya nos golpeó en la 10: el proxy \texttt{*.app.github.dev} (el \texttt{401} con puerto en \texttt{Private}, el \texttt{Connection lost 1008}).
+    \item Decisión de la clase: \textbf{Streamlit como interfaz del agente}.
   \end{itemize}
 \end{frame}
 
@@ -77,7 +77,7 @@ POST /webhook/agente-logistica-unal
   Invertimos el orden clásico: primero se escribe \textbf{qué}, el código viene después.
   \begin{enumerate}
     \item \texttt{SPEC.md}: historias de usuario y criterios de aceptación (chat+memoria, grounding visible, escritura con confirmación, subir/generar PDF).
-    \item \texttt{PLAN.md}: arquitectura y decisiones (Streamlit $>$ Pages, híbrido A R/W + B ingesta, PDFs en el cliente).
+    \item \texttt{PLAN.md}: arquitectura y decisiones (Streamlit en Codespace, híbrido A R/W + B ingesta, PDFs en el cliente).
     \item \texttt{TASKS.md}: T1--T8, una tarea = un cambio + evidencia (comando + output).
   \end{enumerate}
   Si el código contradice al SPEC, se cambia el código. El SPEC es el test.

@@ -6,7 +6,6 @@
 [Streamlit :8501] --requests--> [n8n :5678]
   app/app.py  ── POST localhost:5678/webhook/agente-logistica-unal (JSON chat)
               ── POST localhost:5678/webhook/ingesta-reporte-pdf (JSON texto PDF)
-[Pages unidad-3/clase-11.html] = vitrina (qué hace, arquitectura, link al Streamlit)
 ```
 
 Streamlit corre en el mismo Codespace que n8n, por eso usa `http://localhost:5678`
@@ -15,9 +14,10 @@ y evita CORS + auth del proxy `*.app.github.dev` (causa del `401` y del
 
 ## 2. Decisiones
 
-1. **Streamlit > Pages para la parte viva.** Pages es estático: cada fetch al webhook
-   efímero exige puerto en `Public` + CORS habilitado en n8n + URL que cambia por
-   Codespace. Frágil para clase. Pages queda como documentación/showcase.
+1. **Interfaz en el mismo Codespace.** Streamlit corre junto a n8n y llama por
+   `http://localhost:5678`, evitando el proxy `*.app.github.dev` (causa del `401`
+   y del `Connection lost 1008` vistos en la Clase 10) y las URLs efímeras por
+   Codespace.
 2. **Híbrido n8n: A chat R/W + B ingesta.** El chat JSON ya funciona; mezclarle
    binarios lo rompe. B recibe texto ya extraído (límite 20k chars) y responde resumen.
    La escritura en Sheets es un segundo `ai_tool` en el mismo agente A, no otro workflow,
@@ -57,4 +57,4 @@ antes de escribir. Nunca borres ni actualices sin ID exacto. Responde con lo esc
 
 ## 5. Orden de construcción (ver TASKS.md)
 Contrato → chat → paneles grounding → escritura con confirmación → subida PDF →
-reporte PDF → workflow B → QA contra n8n real → vitrina Pages.
+reporte PDF → workflow B → QA contra n8n real → demo en vivo.

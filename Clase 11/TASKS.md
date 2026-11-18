@@ -27,9 +27,9 @@
       último resumen) y `download_button`. Evidencia: PDF descargado con ≥1 intercambio.
 - [ ] **T7 Workflow B.** Importar `n8n-workflow-ingesta-pdf.json`, `Publish`, probar con
       `curl` JSON `{"sessionId","filename","text"}` → `{"ok":true,"summary":...}`.
-- [ ] **T8 QA + vitrina.** `check.py` 9/9, `grep` de secretos vacío, T2–T6 contra
-      n8n real, actualizar `Pagina/unidad-3/clase-11.html` (qué hace, arquitectura,
-      cómo correr Streamlit, link al SPEC). Evidencia: checklist SPEC §4 en verde.
+- [ ] **T8 QA + demo.** `check.py` 9/9, `grep` de secretos vacío, T2–T6 contra
+      n8n real, demo en vivo (chat con memoria, escritura con/sin check, ingesta,
+      reporte). Evidencia: checklist SPEC §4 en verde.
 
 Reparto sugerido: orquestador → `explore` (T1), `frontend` (T2–T6), `qa` (T7–T8).
 Cada tarea cierra con comando + output pegado en el resumen.
