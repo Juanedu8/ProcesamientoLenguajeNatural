@@ -12,13 +12,17 @@ Frontend principal: **Streamlit en Codespace**. GitHub Pages solo como vitrina.
 - Workflow en n8n en `Publish/Active`. Probar antes con:
   `python "Clase 10/Peticion.py" --url http://localhost:5678/webhook/agente-logistica-unal`
 
-## Cómo correr
+## Cómo correr (estudiante: starter; profesor: referencia)
 
 ```bash
 cd .devcontainer && docker compose up -d          # n8n en :5678
-pip install -r "Clase 11/app/requirements.txt"
-streamlit run "Clase 11/app/app.py"              # UI en :8501
+pip install -r "Clase 11/starter/requirements.txt"
+python "Clase 11/starter/check.py"                # juez: 3/9 -> 9/9
+streamlit run "Clase 11/starter/app.py"           # UI en :8501
 ```
+
+> `Clase 11/solucion-referencia/app/` es la solucion del profesor: mirarla
+> invalida el ejercicio del estudiante. El estudiante solo toca `starter/`.
 
 Variables (ver `Clase 11/app/.env.example`, nunca commitear valores reales):
 

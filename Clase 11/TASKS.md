@@ -1,11 +1,18 @@
 # TASKS — Clase 11 (orquestador: tomar en orden, una a la vez)
 
+> Rol estudiante: se trabaja en `Clase 11/starter/` (ver `starter/README.md`).
+> `solucion-referencia/` es del profesor: mirarla invalida el ejercicio.
+> `python "Clase 11/starter/check.py"` es el juez: arranca en 3/9 y debe llegar a 9/9.
+
+- [ ] **T0 Fork + starter.** Fork propio, Codespace propio, `docker compose up -d`,
+      importar `n8n-workflow-ingesta-pdf.json` + workflow de la Clase 10, `Publish`
+      en ambos. `pip install -r "Clase 11/starter/requirements.txt"`.
 - [ ] **T1 Contrato vivo.** Verificar `docker compose ps` (n8n Up), workflow A en
       `Publish`, `POST localhost:5678/webhook/agente-logistica-unal` con
       `Peticion.py` responde `output`. Evidencia: comando + `Status: 200`.
-- [ ] **T2 Chat + memoria.** `app/app.py`: sidebar (`N8N_CHAT_URL`, `session_id`),
+- [ ] **T2 Chat + memoria.** En `starter/app.py`: sidebar (`N8N_CHAT_URL`, `session_id`),
       historial en `st.session_state`, parseo `[{output}]/{output}`, timeout 120 s,
-      estados vacío/error. Evidencia: `py_compile` + captura de 2 turnos mismo `sessionId`.
+      estados vacío/error. Evidencia: `check.py` suma cliente+chat UI + 2 turnos mismo `sessionId`.
 - [ ] **T3 Panel grounding.** Botones `Osciloscopios / Raspberry Pi / Clima Manizales`
       que envían el `chatInput` correspondiente y muestran respuesta + JSON crudo
       colapsable. Evidencia: 3 respuestas reales.
@@ -20,7 +27,7 @@
       último resumen) y `download_button`. Evidencia: PDF descargado con ≥1 intercambio.
 - [ ] **T7 Workflow B.** Importar `n8n-workflow-ingesta-pdf.json`, `Publish`, probar con
       `curl` JSON `{"sessionId","filename","text"}` → `{"ok":true,"summary":...}`.
-- [ ] **T8 QA + vitrina.** `grep` de secretos vacío, `py_compile` ok, probar T2–T6 contra
+- [ ] **T8 QA + vitrina.** `check.py` 9/9, `grep` de secretos vacío, T2–T6 contra
       n8n real, actualizar `Pagina/unidad-3/clase-11.html` (qué hace, arquitectura,
       cómo correr Streamlit, link al SPEC). Evidencia: checklist SPEC §4 en verde.
 
