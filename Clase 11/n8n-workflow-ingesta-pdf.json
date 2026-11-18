@@ -1,0 +1,62 @@
+{
+  "name": "Clase11 - Ingesta reporte PDF (Codespaces)",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "ingesta-reporte-pdf",
+        "responseMode": "lastNode",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.2,
+      "position": [
+        0,
+        0
+      ],
+      "id": "978b3eea-1c71-4dbd-8fd2-7a2f8254e3a6",
+      "name": "Webhook PDF",
+      "webhookId": "bbc3df54-3a04-4704-9c3b-c87f4b161192"
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "jsCode": "const b = $('Webhook PDF').item.json.body; const text = (b.text || '').slice(0, 20000); const preview = text.slice(0, 500); return [{ json: { ok: true, filename: b.filename || 'reporte.pdf', sessionId: b.sessionId || 'demo-01', chars: text.length, summary: 'Recibido ' + (b.filename || 'reporte.pdf') + ' (' + text.length + ' chars). Inicio: ' + preview + '...' } }];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        224,
+        0
+      ],
+      "id": "6011547d-dd88-4215-85b3-471cf6d666f4",
+      "name": "Resume PDF"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Webhook PDF": {
+      "main": [
+        [
+          {
+            "node": "Resume PDF",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate"
+  },
+  "versionId": "46f52986-80dd-45a7-ae14-4313f23c03e7",
+  "meta": {
+    "templateCredsSetupCompleted": true
+  },
+  "nodeGroups": [],
+  "id": "K7qW2xRt9PmZ4aB1",
+  "tags": []
+}

@@ -6,10 +6,14 @@
   "features": {
     "ghcr.io/devcontainers/features/docker-outside-of-docker:1": {}
   },
-  "forwardPorts": [5678],
+  "forwardPorts": [5678, 8501],
   "portsAttributes": {
     "5678": {
       "label": "n8n",
+      "onAutoForward": "notify"
+    },
+    "8501": {
+      "label": "streamlit-clase11",
       "onAutoForward": "notify"
     }
   },
